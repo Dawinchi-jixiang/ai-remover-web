@@ -1,82 +1,12 @@
 import streamlit as st
 import os
 import sys
-import zipfile
-from io import BytesIO
-from rembg import remove
-from PIL import Image
+# ⚠️ 注意：这里我们移除了 rembg 库，以保证 Streamlit 服务器的稳定性
 
-# ==================== 0. 多语言数据中心 ====================
-LANG_DATA = {
-    "cn": {
-        "title": "Auspice AI Cloud - 在线抠图",
-        "lang_label": "选择语言:",
-        "header_main": "🚀 AI 智能一键抠图 (Web版)",
-        "header_sub": "上传图片，AI 自动去除背景。100% 自动，发丝级精度。",
-        "upload_label": "拖拽图片到这里 (支持多张)",
-        "sidebar_pro": "💎 会员解锁 / Pro",
-        "sidebar_license_input": "输入授权码 (License Key)",
-        "status_pro_active": "✅ PRO 会员已激活",
-        "status_free_limit": "🔒 免费版限制：仅支持单张处理",
-        "status_buy_link": "👉 点击购买授权码 (解锁批量处理)",
-        "button_start": "开始处理",
-        "button_download": "📥 下载处理结果 (ZIP)",
-        "caption_original": "原图",
-        "caption_result": "去背结果",
-        "warning_free_limit": "⚠️ 免费版一次只能处理 1 张图片。请升级 Pro 解锁批量功能。",
-        "status_init": "正在初始化 AI 模型 (首次运行需加载组件)...",
-        "status_complete": "🎉 处理完成！",
-        "status_processing": "正在处理图片:",
-        "file_name_zip": "auspice_ai_results.zip"
-    },
-    "en": {
-        "title": "Auspice AI Cloud - Online Remover",
-        "lang_label": "Select Language:",
-        "header_main": "🚀 AI Smart One-Click Remover (Web)",
-        "header_sub": "Upload images, AI automatically removes background. 100% automatic, high precision.",
-        "upload_label": "Drag and drop images here (Supports multiple files)",
-        "sidebar_pro": "💎 Member Unlock / Pro",
-        "sidebar_license_input": "Enter License Key",
-        "status_pro_active": "✅ PRO Membership Activated",
-        "status_free_limit": "🔒 Free Version Limit: Single image only",
-        "status_buy_link": "👉 Click to Purchase License Key",
-        "button_start": "Start Processing",
-        "button_download": "📥 Download Results (ZIP)",
-        "caption_original": "Original Image",
-        "caption_result": "Result",
-        "warning_free_limit": "⚠️ Free version is limited to 1 image. Please upgrade to Pro for batch functionality.",
-        "status_init": "Initializing AI Model (First run may take time...)",
-        "status_complete": "🎉 Processing Complete!",
-        "status_processing": "Processing file:",
-        "file_name_zip": "auspice_ai_results.zip"
-    },
-    "de": {
-        "title": "Auspice AI Cloud - Online Entferner",
-        "lang_label": "Sprache wählen:",
-        "header_main": "🚀 AI Intelligente Bildentfernung (Web)",
-        "header_sub": "Bilder hochladen, KI entfernt automatisch den Hintergrund. 100% automatisch.",
-        "upload_label": "Bilder hierher ziehen (Mehrere Dateien möglich)",
-        "sidebar_pro": "💎 Mitgliedschaft freischalten",
-        "sidebar_license_input": "Lizenzschlüssel eingeben",
-        "status_pro_active": "✅ PRO Mitgliedschaft aktiviert",
-        "status_free_limit": "🔒 Kostenlose Version: Nur Einzelbilder",
-        "status_buy_link": "👉 Hier klicken, um Lizenz zu kaufen",
-        "button_start": "Verarbeitung starten",
-        "button_download": "📥 Ergebnisse herunterladen (ZIP)",
-        "caption_original": "Originalbild",
-        "caption_result": "Ergebnis",
-        "warning_free_limit": "⚠️ Die kostenlose Version ist auf 1 Bild beschränkt. Bitte auf Pro upgraden.",
-        "status_init": "Initialisiere AI-Modell...",
-        "status_complete": "🎉 Verarbeitung abgeschlossen!",
-        "status_processing": "Verarbeite Datei:",
-        "file_name_zip": "auspice_ai_results.zip"
-    }
-}
-
-# ==================== 1. GSC & 语言状态管理 ====================
-# GSC 验证代码 (已修复位置)
-VERIFICATION_CODE = "68nKEmv8Ywd2MOzO9Qt_LKyvndK3biYJ08JPiFECChI" # ⚠️ 替换为你的真实代码！
+# ==================== GSC 验证代码 ====================
+VERIFICATION_CODE = "68nKEmv8Ywd2MOzO9Qt_LKyvndK3biYJ08JPiFECChI" 
 st.markdown(f'<meta name="google-site-verification" content="{VERIFICATION_CODE}" />', unsafe_allow_html=True)
+# =======================================================
 
 # 隐藏 Streamlit 默认样式
 hide_streamlit_style = """
@@ -87,111 +17,105 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+# 语言数据 (简化，但保持多语言切换功能)
+LANG_DATA = {
+    "cn": {
+        "title": "Auspice AI Solution - 离线抠图神器",
+        "header_main": "✅ 终极离线 AI 抠图解决方案",
+        "header_sub": "100% 离线隐私安全 | 无限批量处理 | 无订阅费",
+        "intro_text": "Streamlit Cloud 性能有限，无法运行 AI 引擎。为了您的数据安全和处理效率，请直接下载稳定且强大的 Windows 桌面应用程序。",
+        "demo_title": "效果预览 (Preview)",
+        "download_button": "🚀 点击购买/下载稳定版 (Windows EXE)",
+        "privacy_note": "数据在本地 PC 处理，永不上传云端。",
+        "buy_link": "https://budgetbuffoon.gumroad.com/l/background-remover" # 替换你的链接
+    },
+    "en": {
+        "title": "Auspice AI Solution - Offline Remover",
+        "header_main": "✅ Ultimate Offline AI Background Remover",
+        "header_sub": "100% Private | Unlimited Batch Processing | No Subscription",
+        "intro_text": "Streamlit Cloud is too weak for our AI engine. For your data security and processing speed, please download the stable and powerful Windows desktop application directly.",
+        "demo_title": "Results Preview",
+        "download_button": "🚀 Buy/Download Stable Version (Windows EXE)",
+        "privacy_note": "Data is processed locally on your PC, never uploaded to the cloud.",
+        "buy_link": "https://budgetbuffoon.gumroad.com/l/background-remover"
+    },
+    "de": {
+        "title": "Auspice AI Solution - Offline Entferner",
+        "header_main": "✅ Ultimative Offline AI Lösung",
+        "header_sub": "100% Privat | Unbegrenzte Batch-Verarbeitung | Keine Abos",
+        "intro_text": "Streamlit Cloud ist zu schwach für unsere AI. Für Ihre Datensicherheit laden Sie bitte die stabile Windows Desktop-Anwendung direkt herunter.",
+        "demo_title": "Ergebnisvorschau",
+        "download_button": "🚀 Stabile Version Kaufen/Downloaden (Windows EXE)",
+        "privacy_note": "Daten werden lokal auf Ihrem PC verarbeitet, niemals in die Cloud hochgeladen.",
+        "buy_link": "https://budgetbuffoon.gumroad.com/l/background-remover"
+    }
+}
+
 # 初始化语言状态
 if 'lang' not in st.session_state:
-    st.session_state.lang = 'en' # 默认英语
-
-# 获取当前语言文本
+    st.session_state.lang = 'en'
 def _(key):
     return LANG_DATA[st.session_state.lang].get(key, key)
-
-# 语言切换函数 (当用户选择语言时触发)
 def set_lang(lang_code):
     st.session_state.lang = lang_code
 
-st.set_page_config(
-    page_title=_( "title"),
-    page_icon="🎨",
-    layout="centered"
-)
+st.set_page_config(page_title=_( "title"), page_icon="🎨", layout="centered")
 
-# ==================== 2. 侧边栏 (SaaS 变现区) ====================
+# ==================== 页面构建 ====================
+st.title(_("header_main"))
+st.subheader(_("header_sub"))
+st.markdown("---")
+
+
+# 侧边栏 (语言选择)
 with st.sidebar:
-    # 语言选择器
-    st.markdown("### 🌍 " + _("lang_label"))
+    st.write("### 🌍 " + _("lang_label"))
     lang_choice = st.selectbox(
-        label=" ", # 标签留空，防止重复显示
+        label=" ",
         options=["English", "中文", "Deutsch"],
-        index=0, # 默认选中 English
-        format_func=lambda x: x # 显示完整的选项文本
+        index=0,
     )
     if lang_choice == "中文": set_lang('cn')
     elif lang_choice == "Deutsch": set_lang('de')
     else: set_lang('en')
-    
-    st.markdown("---")
-    
-    # 授权码验证区
-    st.write("### " + _("sidebar_pro"))
-    license_key = st.text_input(_("sidebar_license_input"), type="password")
-    
-    is_pro = False
-    if license_key == "AUSPICE-VIP-2025": # 你的授权码
-        is_pro = True
-        st.success(_("status_pro_active"))
-    else:
-        st.info(_("status_free_limit"))
-        st.markdown(f"[{_('status_buy_link')}](https://budgetbuffoon.gumroad.com/l/background-remover)")
 
-# ==================== 3. 主界面 ====================
-st.title(_("header_main"))
-st.write(_("header_sub"))
+# 核心营销文案
+st.markdown(f"### {_('intro_text')}")
+st.warning(_('privacy_note'))
 
-# 文件上传器
-uploaded_files = st.file_uploader(_("upload_label"), type=['png', 'jpg', 'jpeg', 'webp'], accept_multiple_files=True)
+st.markdown("---")
 
-if uploaded_files:
-    # --- 限制逻辑 ---
-    if not is_pro and len(uploaded_files) > 1:
-        st.warning(_("warning_free_limit"))
-        uploaded_files = [uploaded_files[0]]
-    
-    st.markdown("---")
-    
-    # 开始处理按钮
-    if st.button(_("button_start"), type="primary"):
-        
-        # 第一次运行的 AI 模型下载提示
-        st.warning(_("status_init"))
-        
-        progress_bar = st.progress(0)
-        
-        # 准备 ZIP 文件缓冲区
-        zip_buffer = BytesIO()
-        
-        with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
-            for i, uploaded_file in enumerate(uploaded_files):
-                st.info(f"{_('status_processing')} {uploaded_file.name}")
-                
-                bytes_data = uploaded_file.getvalue()
-                output_data = remove(bytes_data)
-                
-                # 3. 展示结果 (只展示第一张的对比图)
-                if i == 0:
-                    st.subheader("--- Result Preview ---")
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.image(bytes_data, caption=_("caption_original"), use_column_width=True)
-                    with col2:
-                        st.image(output_data, caption=_("caption_result"), use_column_width=True)
-                
-                # 4. 写入 ZIP
-                file_name = uploaded_file.name.split('.')[0] + "_no_bg.png"
-                zip_file.writestr(file_name, output_data)
-                
-                # 更新进度
-                progress_bar.progress((i + 1) / len(uploaded_files))
-        
-        # --- 下载区域 ---
-        st.success(_("status_complete"))
-        
-        zip_buffer.seek(0)
-        
-        st.download_button(
-            label=_("button_download"),
-            data=zip_buffer,
-            file_name=_("file_name_zip"),
-            mime="application/zip",
-            type="primary"
-        )
+# 下载按钮 (最终目的)
+st.markdown(
+    f"""
+    <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
+        <a href="{_('buy_link')}" target="_blank">
+            <button style="background-color: #ff4b4b; color: white; padding: 15px 30px; border-radius: 8px; font-size: 20px; font-weight: bold; border: none; cursor: pointer;">
+                {_('download_button')}
+            </button>
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
+# 效果展示区 (静态图替代实时处理)
+st.subheader(_('demo_title'))
+
+col1, col2 = st.columns(2)
+
+# 注意：这里需要替换为你自己的静态图片链接或 Base64 编码
+# 客户需要看到 Before & After 对比图
+with col1:
+    st.image("https://images.unsplash.com/photo-1596468497914-411a7f05c48b?fit=crop&w=400&h=400", 
+             caption=_('caption_original'), use_column_width=True)
+
+with col2:
+    # 假设这是抠图后的白底图效果
+    st.image("https://images.unsplash.com/photo-1596468497914-411a7f05c48b?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=400&w=400",
+             caption=_('caption_result'), use_column_width=True)
+
+
+# --- 隐藏不必要的输入框 ---
+# (为了让页面看起来更简洁)
+# ...
