@@ -36,7 +36,7 @@ with st.sidebar:
         st.success("✅ PRO 会员已激活")
     else:
         st.info("🔒 免费版限制：仅支持单张处理\n购买 Pro 版解锁批量模式。")
-        st.markdown("[👉 点击购买授权码 ($5)](https://你的Gumroad链接)")
+        st.markdown("[👉 点击购买授权码 ($5)](https://budgetbuffoon.gumroad.com/l/background-remover)")
 
 # ==================== 3. 主界面 ====================
 st.title("🚀 AI 智能一键抠图 (Web版)")
@@ -94,4 +94,5 @@ if uploaded_files:
             file_name="auspice_ai_results.zip",
             mime="application/zip",
             type="primary" # 醒目的按钮
+
         )
