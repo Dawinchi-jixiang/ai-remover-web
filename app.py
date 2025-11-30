@@ -1,3 +1,10 @@
+# ==================== Google Search Console 验证代码 ====================
+# 请将 'YOUR_VERIFICATION_CODE_HERE' 替换为你在 GSC 获得的真实代码！
+VERIFICATION_CODE = "68nKEmv8Ywd2MOzO9Qt_LKyvndK3biYJ08JPiFECChI" 
+
+# 使用这个函数将代码注入到网页的 head 区域
+st.markdown(f'<meta name="google-site-verification" content="{VERIFICATION_CODE}" />', unsafe_allow_html=True)
+# ========================================================================
 import streamlit as st
 from rembg import remove
 from PIL import Image
@@ -96,3 +103,4 @@ if uploaded_files:
             type="primary" # 醒目的按钮
 
         )
+
